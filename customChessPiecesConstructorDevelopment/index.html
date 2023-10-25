@@ -14,22 +14,21 @@
 				<option value="false">false</option>
 				<option value="true">true</option>
 			</select>
-			direction:
-			<select id="direction" class="selectorClass">
-				<option value="false">false</option>
-				<option value="true">true</option>
-			</select>
 			promotion:
-			<div id="promotion_condition"class="building_containers condition_container containerType3" draggable="false"></div>
-			<div id="promotion"></div><button id="add_piece_for_promotion" style="width: 20px">+</button>
+			<div id="promotion_condition" class="building_containers condition_container containerType3" draggable="false"></div>
+			<div id="promotion"></div><button id="add_piece_for_promotion" style="width: 20px">+</button><button id="delete_piece_for_promotion" style="width: 20px">-</button>
 		</div>
 		<div style="display: flex; flex-flow: column">
 			name:
 			<input id="chess_piece_name" class="inputClass2" />
 			image:
-			<input id="chess_piece_image_url" class="inputClass2" placeholder="image url"/>
-			<image id="chess_piece_image" style="width: 100px;height:100px;border: solid 1px black"></image>
-			<button id="save_button"class="button1">save</button>
+			white
+			<input id="chess_piece_image_url_white" class="inputClass2" placeholder="image url" />
+			<image id="chess_piece_image_white" style="width: 100px;height:100px;border: solid 1px black"></image>
+			black
+			<input id="chess_piece_image_url_black" class="inputClass2" placeholder="image url" />
+			<image id="chess_piece_image_black" style="width: 100px;height:100px;border: solid 1px black"></image>
+			<button id="save_button" class="button1">save</button>
 		</div>
 	</div>
 	<div style="display: flex">
@@ -61,6 +60,8 @@
 					<select class="selectorClass">
 						<option value="+">+</option>
 						<option value="-">-</option>
+						<option value="*">x</option>
+						<option value="/">/</option>
 					</select>
 					<div class="building_containers containerType1" draggable="false"></div>
 				</div>
@@ -160,6 +161,11 @@
 					</select>
 				</div>
 			</div>
+			<div style="position: absolute; left: 203px;top:55px">
+				<div class="block_template color_direction" draggable="true">
+					direction
+				</div>
+			</div>
 		</div>
 		<div class="container_for_AF_BB  condition_container">
 			<div style="position: absolute; left: 58px;top:5px">
@@ -212,8 +218,10 @@
 			</div>
 		</div>
 	</div>
+	<!--
 	<div id="bozo" class="building_containers condition_container" style="background-color: azure;max-height: 100px; height: 100px; min-height: 100px; min-width: 150px"></div>
 	<div id="bozo2" class="building_containers condition_container AF_BB" style="background-color: azure;max-height: 100px; height: 100px; min-height: 100px; min-width: 150px"></div>
+-->
 	<div class="building_containers BBdeleter condition_container" style="background-color:red;max-height: 50px; height: 50px; min-width: 50px;width: 50px;">delete</div>
 	<!--	<input type="number" id="theNumber"/>-->
 	<button id="addPath" onclick="addPath()">add path</button>

@@ -4,9 +4,9 @@ let saveButton = document.getElementById("save_button")
 let chessPieceName = document.getElementById("chess_piece_name").value;
 let isRoyal = document.getElementById("royal")
 let promotionButton = document.getElementById("add_piece_for_promotion")
+let deletePromotionButton = document.getElementById("delete_piece_for_promotion")
 let promotionCondition = document.getElementById("promotion_condition")
 let promotionPieces = document.getElementById("promotion")
-let direction = document.getElementById("direction")
 let draggableBlockTemplates = document.getElementsByClassName("block_template");
 let buildingContainers = document.getElementsByClassName("building_containers");
 let pathesInfo = [];
@@ -16,21 +16,28 @@ let addColor = document.getElementById("addColor")
 let ctx = movementCanvas.getContext("2d")
 let pixelSize = 12;
 let movementInfo = []
-let chessPieceImageUrl = document.getElementById("chess_piece_image_url")
-let chessPieceImage = document.getElementById("chess_piece_image")
+let chessPieceImageUrlW = document.getElementById("chess_piece_image_url_white")
+let chessPieceImageW = document.getElementById("chess_piece_image_white")
+let chessPieceImageUrlB = document.getElementById("chess_piece_image_url_black")
+let chessPieceImageB = document.getElementById("chess_piece_image_black")
 
 function allPromotionPieces() {
 	let rt = "";
 	for (let i = 0; i < promotionPieces.children.length; i++) {
-		rt += " _ChessPiecePrototype_" + promotionPieces.children[i].children[0].value + " ,"
+		if (i > 0) {
+			rt += ", "
+		}
+		rt += "'" + promotionPieces.children[i].children[0].value + "'"
 	}
 	return rt
 }
-chessPieceImageUrl.addEventListener("change", (e) => {
-	alert("change")
-	chessPieceImage.src = chessPieceImageUrl.value
+chessPieceImageUrlW.addEventListener("change", (e) => {
+	chessPieceImageW.src = chessPieceImageUrlW.value
 })
-saveButton.addEventListener("click",()=>{
+chessPieceImageUrlB.addEventListener("change", (e) => {
+	chessPieceImageB.src = chessPieceImageUrlB.value
+})
+saveButton.addEventListener("click", () => {
 	saveChessPiece()
 })
 ctx.fillStyle = "black"
@@ -65,6 +72,9 @@ promotionButton.addEventListener("click", (e) => {
 	input.classList.add("inputClass2")
 	div.append(input)
 	document.getElementById("promotion").append(div)
+})
+deletePromotionButton.addEventListener("click", (e) => {
+	document.getElementById("promotion").children[document.getElementById("promotion").children.length-1].remove()
 })
 movementCanvas.addEventListener("dblclick", (e) => {
 	if (!(ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[0] == 0 && ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[1] == 0 && ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[2] == 0 && ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[3] == 255)) {
@@ -101,24 +111,30 @@ movementCanvas.addEventListener("dblclick", (e) => {
 })
 
 function addPath() {
-	let div = document.createElement("div")
-	let colorDiv = document.createElement("div")
-	let type = document.createElement("select")
-	let typeJump = document.createElement("option")
+	let div = document.createElement("div");
+	let colorDiv = document.createElement("div");
+	let type = document.createElement("select");
+	let typeJump = document.createElement("option");
 	let typeSlide = document.createElement("option")
-	let condition = document.createElement("div")
-	let slideCondition = document.createElement("div")
-	let choose = document.createElement("button")
-	let deleteButton = document.createElement("button")
+	let condition = document.createElement("div");
+	let slideCondition = document.createElement("div");
+	let choose = document.createElement("button");
+	let deleteButton = document.createElement("button");
 	let additionalEffects = document.createElement("div");
-	additionalEffects.classList.add("building_containers")
-	additionalEffects.classList.add("AF_BB")
-	additionalEffects.classList.add("condition_container")
-	condition.classList.add("building_containers")
-	condition.classList.add("condition_container")
-	slideCondition.classList.add("building_containers")
-	slideCondition.classList.add("condition_container")
-	slideCondition.classList.add("slide_condition")
+	let direction = document.createElement("select");
+	let directionTrue = document.createElement("option");
+	let directionFalse = document.createElement("option");
+
+
+	additionalEffects.classList.add("building_containers");
+	additionalEffects.classList.add("AF_BB");
+	additionalEffects.classList.add("condition_container");
+	condition.classList.add("building_containers");
+	condition.classList.add("condition_container");
+	slideCondition.classList.add("building_containers");
+	slideCondition.classList.add("condition_container");
+	slideCondition.classList.add("slide_condition");
+
 	additionalEffects.style.minWidth = "200px"
 	additionalEffects.style.backgroundColor = "lightbrown"
 	div.style.display = "flex"
@@ -126,14 +142,46 @@ function addPath() {
 	typeSlide.innerHTML = "slide"
 	typeJump.value = "jump"
 	typeJump.innerHTML = "jump"
+	directionTrue.value = "true"
+	directionTrue.innerHTML = "Follow Direction"
+	directionFalse.value = "false"
+	directionFalse.innerHTML = "Don't Follow Direction"
+	colorDiv.style.width = "50px"
+	colorDiv.style.height = "50px"
+	colorDiv.style.minWidth = "50px"
+	colorDiv.style.minHeight = "50px"
+	colorDiv.style.backgroundColor = addColor.value
+	choose.innerHTML = "choose"
+	deleteButton.innerHTML = "delete"
+
 	type.append(typeSlide)
 	type.append(typeJump)
+	direction.append(directionFalse)
+	direction.append(directionTrue)
+
+
+	div.append(colorDiv)
+	div.append(choose)
+	div.append(type)
+	div.append(direction)
+	div.append(condition)
+	div.append(slideCondition)
+	div.append(additionalEffects)
+	div.append(deleteButton)
+	buildingContainers = document.getElementsByClassName("building_containers")
+	document.body.append(div)
+	let path = createPath(colorDiv.style.backgroundColor, type.value, elementsIntoCodeCondition(condition), elementsIntoCodeCondition(slideCondition), AFelementsIntoCode(additionalEffects), direction.value)
 	type.addEventListener("change", (e) => {
 		if (getComputedStyle(slideCondition).display != "none") {
 			slideCondition.style.display = "none"
 		} else {
 			slideCondition.style.display = "block"
 		}
+		path.type = type.value
+
+	})
+	direction.addEventListener("change", (e) => {
+		path.followDirection = direction.value
 	})
 	choose.addEventListener("click", (e) => {
 		color = colorDiv.style.backgroundColor
@@ -159,21 +207,6 @@ function addPath() {
 	})
 
 
-	colorDiv.style.width = "50px"
-	colorDiv.style.height = "50px"
-	colorDiv.style.backgroundColor = addColor.value
-	choose.innerHTML = "choose"
-	deleteButton.innerHTML = "delete"
-	div.append(colorDiv)
-	div.append(choose)
-	div.append(type)
-	div.append(condition)
-	div.append(slideCondition)
-	div.append(additionalEffects)
-	div.append(deleteButton)
-	document.body.append(div)
-	buildingContainers = document.getElementsByClassName("building_containers")
-	let path = createPath(colorDiv.style.backgroundColor, type.value, elementsIntoCodeCondition(condition), elementsIntoCodeCondition(slideCondition), AFelementsIntoCode(additionalEffects))
 
 	let observerC = new MutationObserver((mutationsList, observer) => {
 		// The callback function will be executed when changes are detected
@@ -220,7 +253,7 @@ function addPath() {
 	buildingContainersUpdate();
 }
 
-function createPath(color, type, condition, slideCondition, additionalEffect) {
+function createPath(color, type, condition, slideCondition, additionalEffect, direction) {
 	let path = {
 		color: color,
 		type: type,
@@ -228,6 +261,7 @@ function createPath(color, type, condition, slideCondition, additionalEffect) {
 		slideCondition: slideCondition,
 		additionalEffect: additionalEffect,
 		moves: [],
+		followDirection: direction,
 		num: 0
 	}
 	pathesInfo.push(path)
@@ -401,7 +435,7 @@ function buildingContainersUpdate() {
 					start.style.width = (width + addNum) + "px"
 					//console.log(width, start)
 					start = start.parentElement
-				} while (!start.classList.contains("condition_container"))
+				} while (start != null && !start.classList.contains("condition_container"))
 			}
 		})
 	}
@@ -435,6 +469,12 @@ function elementsIntoCodeCondition(el) {
 					answer += "{ x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".x),"
 					answer += "y: parseInt(" + elementsIntoCodeCondition(el.children[0].children[0]) + ".y ) " + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".y) }"
 
+				} else if (isObjectString(elementsIntoCodeCondition(el.children[0].children[0]))) {
+					answer += "{ x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])
+					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])
+				} else if (isObjectString(elementsIntoCodeCondition(el.children[0].children[2]))) {
+					answer += "{ x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])
+					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])
 				} else {
 					answer += "( " + elementsIntoCodeCondition(el.children[0].children[0]) + " "
 					answer += el.children[0].children[1].value + " "
@@ -460,9 +500,8 @@ function elementsIntoCodeCondition(el) {
 				return el.children[0].children[0].value
 				break;
 			case "write":
-				return el.children[0].children[0].value
+				return "'" + el.children[0].children[0].value + "'"
 				break;
-				//const
 			case "position_after_moving":
 				return "{x:parseInt(pos.x),y:parseInt(pos.y)}"
 				break;
@@ -475,6 +514,7 @@ function elementsIntoCodeCondition(el) {
 			case "seen_by":
 				answer += "checkIsSquareSeen((item)=>{return "
 				answer += el.children[0].children[3].value
+				answer += "&& piece.pos != pos"
 				if (el.children[0].children[5].children[0].value != "") {
 					answer += " && item.type.name == " + el.children[0].children[5].children[0].value
 				}
@@ -495,6 +535,9 @@ function elementsIntoCodeCondition(el) {
 				answer += elementsIntoCodeCondition(el.children[0].children[0]);
 				answer += el.children[0].children[1].value;
 				return answer
+				break;
+			case "color_direction":
+				return "colorDirection(piece.color)"
 				break;
 			default:
 				answer = "true"
@@ -536,10 +579,10 @@ function AFelementsIntoCode(el) {
 				answer += "if(" + cond + "){" + action + "}"
 				break;
 			case "capture":
-				answer += `clearSquare(findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}.x,${elementsIntoCodeCondition(el.children[i].children[1])}.y));`
+				answer += `clearSquare(findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}));`
 				break;
 			case "move_to":
-				answer += `movePiece(chessBoard.children[findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}.x,${elementsIntoCodeCondition(el.children[i].children[1])}.y)].children[0],findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}.x,${elementsIntoCodeCondition(el.children[i].children[1])}.y));`
+				answer += `movePiece(chessBoard.children[findSquare(${elementsIntoCodeCondition(el.children[i].children[1])})].children[0],findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}));`
 				break;
 			case "create":
 				answer += `createChessPiece(${el.children[i].children[1].value},${elementsIntoCodeCondition(el.children[i].children[4])},sameNotColor(${el.children[i].children[3].value},piece));`
@@ -599,22 +642,24 @@ function saveChessPiece() {
 	chessPieceName = document.getElementById("chess_piece_name").value
 	let chessPiecePrototype = {
 		name: chessPieceName,
-		image: chessPieceImageUrl.value,
+		image: {
+			"white": chessPieceImageUrlW.value,
+			"black": chessPieceImageUrlB.value
+		},
 		royal: isRoyal.value,
 		promote: "ChessPiecePromotion((pos,piece)=>{return " + elementsIntoCodeCondition(promotionCondition) + "},[" + allPromotionPieces() + "])",
-		//		promote:ChessPiecePromotion((pos,piece)=>{return  elementsIntoCodeCondition(promotionCondition)},[allPromotionPieces()]),//might need work
 		movement: []
 	};
 	movementInfoToPathesInfo();
 	pathesInfo.forEach((path) => {
 		console.log(JSON.stringify(path.moves), path.moves)
-		chessPiecePrototype.movement.push("ChessPieceMovementPath(" + JSON.stringify(path.moves).replaceAll("\"", "") + ",\"" + path.type + "\",(pos,piece)=>{return " + path.condition + "},(pos,piece)=>{return " + path.slideCondition + "} , (pos,piece)=>{" + path.additionalEffect + "})")
+		chessPiecePrototype.movement.push("ChessPieceMovementPath(" + JSON.stringify(path.moves).replaceAll("\"", "") + ",\"" + path.type + "\",(pos,piece)=>{return " + path.condition + "},(pos,piece)=>{return " + path.slideCondition + "} , (pos,piece)=>{" + path.additionalEffect + "}," + path.followDirection + ")")
 	})
 	let test = JSON.stringify(chessPiecePrototype)
 
 	let content = "let _ChessPiecePrototype_" + chessPieceName + " = " + test;
-	let chessPieceFile = new File([content], "chessPiece_" + chessPieceName +".js", {
-		type: "application/javascript"
+	let chessPieceFile = new File([test], "chessPiece_" + chessPieceName + ".json", {
+		type: "application/json"
 	})
 
 	const link = document.createElement("a");

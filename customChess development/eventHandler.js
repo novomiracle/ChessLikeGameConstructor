@@ -2,7 +2,7 @@ function checkValidityOfMove(draggedPiece, move, target, direction) {
 	return draggedPiece.chessPiece.pos.x + move.x * direction === parseInt(target.getAttribute("x")) && draggedPiece.chessPiece.pos.y + move.y * direction === parseInt(target.getAttribute("y"));
 }
 
-// Get all the squares on the chessboard 
+// Get all the squares on the chessboard
 let squares = document.querySelectorAll(".square");
 
 // Add event listeners to the squares for drag and drop functionality
@@ -28,13 +28,14 @@ let draggedPiece;
 // Event handler for drag start
 function handleDragStart(e) {
 	draggedPiece = e.target;
+	console.log(e.target)
 }
 
 // Event handler for moving the piece
 function handleDrop(e) {
 	let path;
 	//checking to make sure the piece is the one that was chosen or the first
-	console.log("1", draggedPiece.chessPiece.pos)
+	console.log("1", draggedPiece)
 	if ((chessMove == 0 || chosenPiece == draggedPiece) && gameOn) {
 		let target = e.target;
 		//script to choose the square not the piece
@@ -70,15 +71,18 @@ function handleDrop(e) {
 					} else if (item.type == "slide") {
 						//console.log("do we need to check the slide condition",moveIndex != 0)
 						//console.log(moveIndex)
-						if (moveIndex != 0) {
+						if (moveIndex != 0) {	
 							let movesUpToTheMove = item.moves.slice(0, moveIndex)
+							//console.log(movesUpToTheMove,item,moveIndex)
 							return movesUpToTheMove.every((move2) => {
 								let chosenSquare = {
 									x: draggedPiece.chessPiece.pos.x + move2.x * direction,
 									y: draggedPiece.chessPiece.pos.y + move2.y * direction
 								}
 								//console.log("slide Condition", item.slideCondition(chosenSquare, draggedPiece.chessPiece, chessBoardArray))
-								return item.slideCondition(chosenSquare, draggedPiece.chessPiece)
+								if(item.slideCondition(chosenSquare, draggedPiece.chessPiece)){
+									return  checkValidityOfMove(draggedPiece, move, target, direction)
+								}
 							})
 						} else {
 							return checkValidityOfMove(draggedPiece, move, target, direction)

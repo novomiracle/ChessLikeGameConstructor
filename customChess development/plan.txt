@@ -4,4 +4,7 @@
 3.5 - make chess and checkers
 4 - constructor for chess pieces
 5 - chess colors
-6 - save/load
+6 - load
+
+done - bug sliding through the opposite pieces
+	- not checking the squares while sliding?

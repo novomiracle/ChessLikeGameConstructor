@@ -1,4 +1,6 @@
 let chessPieces = []
+var theGame;
+let loadGameFile = document.getElementById("load")
 let gameOn = true;
 let chessHistory = []
 let chessTurns = 0;
@@ -7,6 +9,7 @@ let chessBoardArray = [];
 let royaltiesNeeded = 1;
 let playersMin = 2;
 function findSquare(pos){
+	console.log(pos)
 	return parseInt(pos.x) + parseInt(pos.y) * chessWidth
 }
 // Function to update the chessboard array
@@ -69,7 +72,7 @@ function createChessPiece(type, pos, color) {
 //	image.draggable = false
 	//htmlEl.append(image)
 	document.getElementById(pos.x + pos.y*chessWidth).append(htmlEl);
-	let chessPiece = {
+	let chessPiece = {	
 		type: type,
 		pos: pos,
 		color: color,
@@ -91,7 +94,7 @@ function movePiece(piece, square) {
 }
 
 function clearSquare(square) {
-	//console.log("square",square)
+	console.log("square",square)
 	chessBoard.children[square].innerHTML = ""
 }
 
@@ -176,6 +179,7 @@ function ChessPieceMovementPath(moves, type = "slide",
 		return chessBoardArray[parseInt(pos.x)+parseInt(pos.y)*chessWidth].color != piece.color && chessMove < 1;
 	},
 	slideCondition = (pos, piece) => {
+		console.log(chessBoardArray[parseInt(pos.x)+parseInt(pos.y)*chessWidth])
 		return chessBoardArray[parseInt(pos.x)+parseInt(pos.y)*chessWidth] == 0
 	},
 	applyAdditionalEffect = (pos, piece) => {
@@ -273,4 +277,18 @@ function checkIsSquareSeen(filter,posa,recursion = 0){
 	}else{
 		return false
 	}
+}
+function sameNotColor(same,piece){
+	if(same){
+		return piece.color
+	}else{
+		return colorOrder.find((el)=>{
+			el != piece.color
+		}).color
+	}
+}
+function colorDirection(color){
+	return colorOrder.find((el)=>{
+		el.color == color
+	}).direction
 }

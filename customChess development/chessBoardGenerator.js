@@ -17,6 +17,7 @@ function createChessSquare(color) {
 	let chessSquare = document.createElement("div");
 	chessSquare.classList = "square " + color;
 	chessSquare.id = squareId;
+	chessSquare.draggable = false
 	chessSquare.setAttribute("y", Math.floor(squareId / chessWidth))
 	chessSquare.setAttribute("x", squareId - chessWidth * Math.floor(squareId / chessWidth))
 	chessBoard.append(chessSquare);
