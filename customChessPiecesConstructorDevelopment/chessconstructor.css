@@ -1,0 +1,270 @@
+.building_block {
+	border: solid black 1px;
+	background: white;
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	/*	flex-wrap: nowrap;*/
+	flex-shrink: 0;
+	/*for specific blocks*/
+	left: 2.5px;
+	top:2.5px;
+	/*
+	width: 40px;
+	height: 15px;
+*/
+}
+
+.block_template {
+	border: solid black 1px;
+	background: white;
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	/*for specific blocks*/
+}
+
+.building_containers {
+	background-color: lightgray;
+	position: relative;
+	/*	specifics */
+	width: 150px;
+	/*	min-height: 17px;*/
+}
+
+.container_for_BB {
+	position: relative;
+	background-color: lightgray;
+	border: solid 1px black;
+	width: 150px;
+	height: 150px;
+	display: flex
+}
+
+.container_for_AF_BB {
+	position: relative;
+	background-color: lightgray;
+	border: solid 1px black;
+	width: 150px;
+	height: 150px;
+	display: flex;
+	overflow-y: scroll;
+	overflow-x: scroll;
+}
+
+.and_or {
+	width: 70px;
+	height: 17px;
+	flex-wrap: nowrap;
+}
+
+#promotion {
+	width: 50px;
+	height: 50px;
+	border: solid gray 1px;
+	overflow-y: scroll;
+	overflow-x: scroll;
+}
+
+.selectorClass {
+	width: 45px;
+	min-width: 45px;
+	font-size: 10px;
+	text-align: center
+}
+
+.containerType1 {
+	height: 17px;
+	min-height: 17px;
+	min-width: 12px;
+	width: 12px;
+}
+
+.containerType2 {
+	height: 17px;
+	min-height: 17px;
+	min-width: 27px;
+	width: 27px;
+}
+
+.containerType3 {
+	height: 30px !important;
+	min-height: 30px !important;
+	min-width: 27px;
+	width: 27px;
+}
+
+.compare {
+	height: 17px;
+	width: 70px;
+}
+
+.math_func {
+	height: 17px;
+	width: 70px;
+}
+
+.coordinates {
+	height: 20px;
+	width: 90px;
+	font-size: 15px
+}
+
+.inputClass {
+	min-width: 25px;
+	width: 25px;
+	font-size: 10px;
+}
+
+.position_after_moving {
+	width: 70px;
+	height: 22px;
+	font-size: 10px;
+}
+
+.piece_info {
+	height: 17px;
+	width: 70px;
+	font-size: 15px;
+}
+
+.chessboard_block {
+	width: 121px;
+	height: 17px;
+	font-size: 15px
+}
+
+.true_false {
+	height: 20px;
+	width: 50px;
+}
+
+.write {
+	height: 17px;
+	width: 70px;
+}
+
+.inputClass2 {
+	height: 11px;
+	width: 62px;
+	min-width: 62px;
+}
+
+.condition_container {
+	border: solid black 1px;
+	min-width: 200px;
+	min-height: 50px;
+	overflow-x: scroll;
+	overflow-y: scroll;
+}
+
+.slide_condition {
+	background-color: azure !important;
+}
+
+.colorDiv {
+	width: 50px;
+	height: 50px;
+	min-height: 50px;
+	min-width: 50px
+}
+
+.a1 {
+	min-width: 45px
+}
+
+.seen_by {
+	width: 281px;
+	height: 17px;
+}
+
+.moves {
+	font-size: 10px;
+	width: 50px;
+	height: 21px;
+}
+
+.turns {
+	font-size: 10px;
+	width: 50px;
+	height: 21px;
+}
+
+.chess_history {
+	font-size: 13px;
+	height: 17px;
+}
+
+.AF_BB {
+	background-color: lightyellow;
+	width: 50px;
+	height: 50px;
+	min-width: 50px;
+	min-height: 50px;
+	display: flex;
+	flex-direction: column;
+	overflow-x: scroll;
+	overflow-y: scroll;
+}
+
+.if {
+	display: flex;
+	flex-direction: column;
+	max-height: 70px;
+	min-width: 50px;
+	width:50px;
+}
+
+.if_else {
+	display: flex;
+	flex-direction: column;
+	max-height: 140px;
+	min-width: 50px;
+	width:50px;
+}
+.text1{
+	display: flex;
+	flex-direction:row;
+	min-width: 50px;
+}
+.text2{
+	display: flex;
+	flex-direction:row;
+	min-width: 50px;
+}
+.forAF{
+	position:absolute;
+}
+.capture{
+	width: 60px;
+	min-width:60px;
+}
+.move_to{
+	width: 74px;
+	min-width: 74px;
+}
+.create{
+	width:205px;
+	min-width: 123px;
+}
+.BB_storage{
+	border: 1px solid black;
+	position: fixed;
+	opacity: 50%;
+	z-index: 2;
+	left: 60%;
+	top: 0%;
+	height: 100%;
+	min-height: 100%;
+	min-width: 40%;
+	width: 40%;
+	background: lightgray;
+}
+.button1{
+	width:50px;
+	height: 30px;
+}
+.color_direction{
+	width: 60px;
+	height: 22px;
+}
