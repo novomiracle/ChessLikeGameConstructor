@@ -24,11 +24,12 @@
 			image:
 			white
 			<input id="chess_piece_image_url_white" class="inputClass2" placeholder="image url" />
-			<image id="chess_piece_image_white" style="width: 100px;height:100px;border: solid 1px black"></image>
+			<img id="chess_piece_image_white" style="width: 100px;height:100px;border: solid 1px black" />
 			black
 			<input id="chess_piece_image_url_black" class="inputClass2" placeholder="image url" />
-			<image id="chess_piece_image_black" style="width: 100px;height:100px;border: solid 1px black"></image>
+			<img id="chess_piece_image_black" style="width: 100px;height:100px;border: solid 1px black" />
 			<button id="save_button" class="button1">save</button>
+			<a>load</a><input id="load" type="file"/>
 		</div>
 	</div>
 	<div style="display: flex">
@@ -81,6 +82,7 @@
 						<option value="color">color</option>
 						<option value="pos">position</option>
 						<option value="type.name">type</option>
+						<option value="allMoves">turns</option>
 					</select>
 				</div>
 			</div>
@@ -126,11 +128,6 @@
 					<a>this piece's moves</a>
 				</div>
 			</div>
-			<div style="position: absolute; left: 150px;top:5px">
-				<div class="block_template turns" draggable="true">
-					<a>this piece's turns</a>
-				</div>
-			</div>
 			<div style="position: absolute; left:150px;top:55px">
 				<div class="block_template numbers" draggable="true">
 					<input type="number" class="inputClass" />
@@ -145,8 +142,8 @@
 					</select>
 					<input type="number" class="inputClass" />
 					<select class="selectorClass">
-						<option value="from"> from </option>
-						<option value="to"> to </option>
+						<option value="from"> from (moved) </option>
+						<option value="to"> to (moved)</option>
 						<option value="piece.type.name"> piece's type </option>
 						<option value="piece.color"> piece's color </option>
 					</select>
@@ -222,7 +219,6 @@
 	<div id="bozo" class="building_containers condition_container" style="background-color: azure;max-height: 100px; height: 100px; min-height: 100px; min-width: 150px"></div>
 	<div id="bozo2" class="building_containers condition_container AF_BB" style="background-color: azure;max-height: 100px; height: 100px; min-height: 100px; min-width: 150px"></div>
 -->
-	<div class="building_containers BBdeleter condition_container" style="background-color:red;max-height: 50px; height: 50px; min-width: 50px;width: 50px;">delete</div>
 	<!--	<input type="number" id="theNumber"/>-->
 	<button id="addPath" onclick="addPath()">add path</button>
 	<input id="addColor" type="color" />
@@ -231,4 +227,5 @@
 		<div class="context_button" id="delete">delete</div>
 	</div>
 	<script src="chessConstructor.js"></script>
+	<script src="load.js"></script>
 </body>

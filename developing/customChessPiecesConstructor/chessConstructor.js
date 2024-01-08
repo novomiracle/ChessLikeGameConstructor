@@ -1,4 +1,5 @@
 let WidthBoard = 8;
+let load = document.getElementById("load");
 let dublicateButton = document.getElementById("dublicate");
 let deleteButton = document.getElementById("delete");
 let context;
@@ -24,6 +25,7 @@ let chessPieceImageUrlW = document.getElementById("chess_piece_image_url_white")
 let chessPieceImageW = document.getElementById("chess_piece_image_white")
 let chessPieceImageUrlB = document.getElementById("chess_piece_image_url_black")
 let chessPieceImageB = document.getElementById("chess_piece_image_black")
+let pathColors = [];
 
 function allPromotionPieces() {
 	let rt = "";
@@ -75,7 +77,7 @@ promotionButton.addEventListener("click", (e) => {
 	let input = document.createElement("input");
 	input.classList.add("inputClass2")
 	div.append(input)
-	document.getElementById("promotion").append(div)
+	promotionPieces.append(div)
 })
 deletePromotionButton.addEventListener("click", (e) => {
 	document.getElementById("promotion").children[document.getElementById("promotion").children.length - 1].remove()
@@ -146,19 +148,23 @@ function addPath() {
 	typeSlide.innerHTML = "slide"
 	typeJump.value = "jump"
 	typeJump.innerHTML = "jump"
+	direction.classList.add("movement_direction")
 	directionTrue.value = "true"
 	directionTrue.innerHTML = "Follow Direction"
 	directionFalse.value = "false"
 	directionFalse.innerHTML = "Don't Follow Direction"
+	colorDiv.classList.add("color_div")
 	colorDiv.style.width = "50px"
 	colorDiv.style.height = "50px"
 	colorDiv.style.minWidth = "50px"
 	colorDiv.style.minHeight = "50px"
 	colorDiv.style.backgroundColor = addColor.value
+	pathColors.push(addColor.value)
 	choose.innerHTML = "choose"
 	deleteButton.innerHTML = "delete"
 
 	type.append(typeSlide)
+	type.classList.add("movement_type")
 	type.append(typeJump)
 	direction.append(directionFalse)
 	direction.append(directionTrue)
@@ -199,6 +205,7 @@ function addPath() {
 		for (let i = 0; i < rgb.length; i++) {
 			rgb[i] = parseInt(rgb[i])
 		}
+		pathColors.splice(pathColors.indexOf(rgbToHex(rgb)))
 		let removeThose = movementInfo.filter((item) => {
 			return item.color == rgbToHex(rgb)
 		})
@@ -253,8 +260,10 @@ function addPath() {
 	observerC.observe(condition, config);
 	observerSC.observe(slideCondition, config);
 	observerAF.observe(additionalEffects, config);
-
+	
 	buildingContainersUpdate();
+	
+	return div
 }
 
 function createPath(color, type, condition, slideCondition, additionalEffect, direction) {
@@ -386,9 +395,6 @@ function buildingContainersUpdate() {
 						}
 					}
 				}
-				if (ev.target.classList.contains("BBdeleter")) {
-					ev.target.innerHTML = "delete"
-				}
 				//				console.log("1 parent:", parent)
 				//sizing from children to parent for ex parent
 				do {
@@ -412,43 +418,7 @@ function buildingContainersUpdate() {
 				} while (!parent.classList.contains("condition_container"))
 				let start = ev.target
 				//sizing from child to parent for new parent
-				do {
-					let width = 0;
-					let height = 0;
-					if (!start.classList.contains("if") && !start.classList.contains("if_else")) {
-						for (let i = 0; i < start.children.length; i++) {
-							if (!isNaN(parseInt(getComputedStyle(start.children[i]).width))) {
-								if (parseInt(getComputedStyle(start.children[i]).width) < parseInt(start.children[i].style.width)) {
-									width += parseInt(start.children[i].style.width)
-								} else {
-									width += parseInt(getComputedStyle(start.children[i]).width)
-								}
-							}
-
-						}
-					} else {
-						let parCh = start.children;
-						let if_if_else = start.children[0].children;
-						for (let i = 0; i < if_if_else.length; i++) {
-							if (parseInt(getComputedStyle(start.children[0].children[i]).width) < parseInt(start.children[0].children[i]).width) {
-								width += parseInt(if_if_else[i].style.width)
-							} else {
-								width += parseInt(getComputedStyle(if_if_else[i]).width)
-							}
-						}
-						start.children[1].style.width = width + "px"
-						if (start.children[3] != null) {
-							start.children[3].style.width = width + "px"
-						}
-					}
-					let addNum = 0
-					if (start.classList.contains("building_containers")) {
-						addNum = 5
-					}
-					start.style.width = (width + addNum) + "px"
-					//console.log(width, start)
-					start = start.parentElement
-				} while (start != null && !start.classList.contains("condition_container"))
+				designTheDropElFromChildren(start)
 			}
 		})
 	}
@@ -467,27 +437,22 @@ function elementsIntoCodeCondition(el) {
 				return answer
 				break;
 			case "compare":
-				if (isObjectString(elementsIntoCodeCondition(el.children[0].children[0])) && isObjectString(elementsIntoCodeCondition(el.children[0].children[2]))) {
-					answer += "( parseInt(" + elementsIntoCodeCondition(el.children[0].children[0]) + ".x) " + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".x) &&"
-					answer += " parseInt(" + elementsIntoCodeCondition(el.children[0].children[0]) + ".y) " + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".y) )"
-				} else {
-					answer += "( " + elementsIntoCodeCondition(el.children[0].children[0]) + " "
-					answer += el.children[0].children[1].value + " "
-					answer += elementsIntoCodeCondition(el.children[0].children[2]) + " )"
-				}
+				answer += "( " + elementsIntoCodeCondition(el.children[0].children[0]) + " "
+				answer += el.children[0].children[1].value + " "
+				answer += elementsIntoCodeCondition(el.children[0].children[2]) + " )"
 				return answer
 				break;
 			case "math_func":
 				if (isObjectString(elementsIntoCodeCondition(el.children[0].children[0])) && isObjectString(elementsIntoCodeCondition(el.children[0].children[2]))) {
-					answer += "{ x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".x),"
-					answer += "y: parseInt(" + elementsIntoCodeCondition(el.children[0].children[0]) + ".y ) " + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".y) }"
+					answer += "{x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".x),"
+					answer += "y: parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".y ) " + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".y) }"
 
 				} else if (isObjectString(elementsIntoCodeCondition(el.children[0].children[0]))) {
-					answer += "{ x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])
-					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])
+					answer += "{x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])
+					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])+"}"
 				} else if (isObjectString(elementsIntoCodeCondition(el.children[0].children[2]))) {
-					answer += "{ x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])
-					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])
+					answer += "{x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])
+					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])+"}"
 				} else {
 					answer += "( " + elementsIntoCodeCondition(el.children[0].children[0]) + " "
 					answer += el.children[0].children[1].value + " "
@@ -501,7 +466,7 @@ function elementsIntoCodeCondition(el) {
 				return answer
 				break;
 			case "coordinates":
-				return "{x: parseInt(" + el.children[0].children[1].value + "), y: parseInt(" + el.children[0].children[3].value + ")}"
+				return "{x:" + el.children[0].children[1].value + ", y:" + el.children[0].children[3].value + "}"
 				break;
 			case "piece_info":
 				return "piece." + el.children[0].children[1].value
@@ -521,9 +486,6 @@ function elementsIntoCodeCondition(el) {
 			case "moves":
 				return "chessMove"
 				break;
-			case "turns":
-				return "piece.allMoves"
-				break;
 			case "seen_by":
 				answer += "checkIsSquareSeen((item)=>{return "
 				answer += el.children[0].children[3].value
@@ -537,8 +499,8 @@ function elementsIntoCodeCondition(el) {
 
 			case "chess_history":
 				if (el.children[0].children[3].value == "from" || el.children[0].children[3].value == "to") {
-					answer += "{ x:parseInt(chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value + ".x),"
-					answer += "{ y:parseInt(chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value + ".y)}"
+					answer += "{x:parseInt(chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value + ".x),"
+					answer += " y:parseInt(chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value + ".y)}"
 				} else {
 					answer += "chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value
 				}
@@ -589,16 +551,16 @@ function AFelementsIntoCode(el) {
 				action2 += AFelementsIntoCode(el.children[i].children[3])
 				//}
 				//console.log(action)
-				answer += "if(" + cond + "){" + action + "}"
+				answer += "if(" + cond + "){" + action + "}else{"+ action2 +"}"
 				break;
 			case "capture":
 				answer += `clearSquare(findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}));`
 				break;
 			case "move_to":
-				answer += `movePiece(chessBoard.children[findSquare(${elementsIntoCodeCondition(el.children[i].children[1])})].children[0],findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}));`
+				answer += `movePiece(chessBoard.children[findSquare(${elementsIntoCodeCondition(el.children[i].children[1])})].children[0],findSquare(${elementsIntoCodeCondition(el.children[i].children[3])}));`
 				break;
 			case "create":
-				answer += `createChessPiece(${el.children[i].children[1].value},${elementsIntoCodeCondition(el.children[i].children[4])},sameNotColor(${el.children[i].children[3].value},piece));`
+				answer += `createChessPiece('${el.children[i].children[1].value}',${elementsIntoCodeCondition(el.children[i].children[4])},sameNotColor(${el.children[i].children[3].value}));`
 				break;
 			default:
 				return ""
@@ -661,12 +623,13 @@ function saveChessPiece() {
 		},
 		royal: isRoyal.value,
 		promote: "ChessPiecePromotion((pos,piece)=>{return " + elementsIntoCodeCondition(promotionCondition) + "},[" + allPromotionPieces() + "])",
-		movement: []
+		movement: [],
+		pathColors: pathColors
 	};
 	movementInfoToPathesInfo();
 	pathesInfo.forEach((path) => {
 		//console.log(JSON.stringify(path.moves), path.moves)
-		chessPiecePrototype.movement.push("ChessPieceMovementPath(" + JSON.stringify(path.moves).replaceAll("\"", "") + ",\"" + path.type + "\",(pos,piece)=>{return " + path.condition + "},(pos,piece)=>{return " + path.slideCondition + "} , (pos,piece)=>{" + path.additionalEffect + "}," + path.followDirection + ")")
+		chessPiecePrototype.movement.push("ChessPieceMovementPath(" + JSON.stringify(path.moves).replaceAll("\"", "") + ",\"" + path.type + "\",(pos,piece)=>{return " + path.condition + "},(pos,piece)=>{return " + path.slideCondition + "},(pos,piece)=>{" + path.additionalEffect + "}," + path.followDirection + ")")
 	})
 	let test = JSON.stringify(chessPiecePrototype)
 
@@ -685,7 +648,6 @@ function saveChessPiece() {
 }
 
 document.addEventListener('click', function (e) {
-	e.preventDefault();
 	contextMenu.classList.remove("visible")
 }, false)
 deleteButton.addEventListener("click", (e) => {
@@ -702,9 +664,79 @@ dublicateButton.addEventListener("click", (e) => {
 			ev.dataTransfer.setData("text", ev.target.id);
 		})
 		console.log(clone.style.left)
-		clone.style.top = parseInt(clone.style.top) + 5 +"px"
-		clone.style.left = parseInt(clone.style.left) + 5 +"px"
+		if (clone.style.top != "") {
+			clone.style.top = parseInt(clone.style.top) + 5 + "px"
+		} else {
+			clone.style.top = 5 + "px"
+		}
+		if (clone.style.left != "") {
+			clone.style.left = parseInt(clone.style.left) + 5 + "px"
+		} else {
+			clone.style.left = 5 + "px"
+		}
 		idForBB++
+		clone.addEventListener('contextmenu', function (e) {
+			e.preventDefault();
+			context = clone
+			contextMenu.style.top = e.clientY + "px"
+			contextMenu.style.left = e.clientX + "px"
+			contextMenu.classList.add("visible")
+		}, false)
+		for(let i = 0;i < clone.getElementsByClassName("building_block").length;i++){
+			clone.getElementsByClassName("building_block")[i].addEventListener("dragstart", function (ev) {
+				ev.dataTransfer.setData("text", ev.target.id);
+			})
+			clone.getElementsByClassName("building_block")[i].addEventListener('contextmenu', function (e) {
+			e.preventDefault();
+			context = clone
+			contextMenu.style.top = e.clientY + "px"
+			contextMenu.style.left = e.clientX + "px"
+			contextMenu.classList.add("visible")
+		}, false)
+			clone.getElementsByClassName("building_block")[i].id ="clone"+idForBB
+			idForBB++
+			
+		}
 		context.parentElement.append(clone)
 	}
 })
+
+function designTheDropElFromChildren(start) {
+	do {
+		let width = 0;
+		let height = 0;
+		if (!start.classList.contains("if") && !start.classList.contains("if_else")) {
+			for (let i = 0; i < start.children.length; i++) {
+				if (!isNaN(parseInt(getComputedStyle(start.children[i]).width))) {
+					if (parseInt(getComputedStyle(start.children[i]).width) < parseInt(start.children[i].style.width)) {
+						width += parseInt(start.children[i].style.width)
+					} else {
+						width += parseInt(getComputedStyle(start.children[i]).width)
+					}
+				}
+
+			}
+		} else {
+			let parCh = start.children;
+			let if_if_else = start.children[0].children;
+			for (let i = 0; i < if_if_else.length; i++) {
+				if (parseInt(getComputedStyle(start.children[0].children[i]).width) < parseInt(start.children[0].children[i]).width) {
+					width += parseInt(if_if_else[i].style.width)
+				} else {
+					width += parseInt(getComputedStyle(if_if_else[i]).width)
+				}
+			}
+			start.children[1].style.width = width + "px"
+			if (start.children[3] != null) {
+				start.children[3].style.width = width + "px"
+			}
+		}
+		let addNum = 0
+		if (start.classList.contains("building_containers")) {
+			addNum = 5
+		}
+		start.style.width = (width + addNum) + "px"
+		//console.log(width, start)
+		start = start.parentElement
+	} while (start != null && !start.classList.contains("condition_container"))
+}
