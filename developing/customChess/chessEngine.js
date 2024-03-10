@@ -1,3 +1,7 @@
+const conditionPrefix = "(pos,piece)=>{return "
+const AFPrefix = "(pos,piece)=>{"
+const AFSufix = "}"
+const conditionSufix = "}"
 let chessPieces = []
 var theGame;
 let loadGameFile = document.getElementById("load")
@@ -9,7 +13,6 @@ let chessBoardArray = [];
 let royaltiesNeeded = 1;
 let playersMin = 2;
 function findSquare(pos){
-	console.log(pos)
 	return parseInt(pos.x) + parseInt(pos.y) * chessWidth
 }
 // Function to update the chessboard array
@@ -179,7 +182,6 @@ function ChessPieceMovementPath(moves, type = "slide",
 		return chessBoardArray[parseInt(pos.x)+parseInt(pos.y)*chessWidth].color != piece.color && chessMove < 1;
 	},
 	slideCondition = (pos, piece) => {
-		console.log(chessBoardArray[parseInt(pos.x)+parseInt(pos.y)*chessWidth])
 		return chessBoardArray[parseInt(pos.x)+parseInt(pos.y)*chessWidth] == 0
 	},
 	applyAdditionalEffect = (pos, piece) => {

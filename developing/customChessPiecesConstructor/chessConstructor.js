@@ -1,4 +1,5 @@
 let WidthBoard = 8;
+let layerId = 0
 let load = document.getElementById("load");
 let dublicateButton = document.getElementById("dublicate");
 let deleteButton = document.getElementById("delete");
@@ -9,6 +10,7 @@ let saveButton = document.getElementById("save_button")
 let chessPieceName = document.getElementById("chess_piece_name").value;
 let isRoyal = document.getElementById("royal")
 let promotionButton = document.getElementById("add_piece_for_promotion")
+let movementContainer = document.getElementById("movement_container")
 let deletePromotionButton = document.getElementById("delete_piece_for_promotion")
 let promotionCondition = document.getElementById("promotion_condition")
 let promotionPieces = document.getElementById("promotion")
@@ -20,12 +22,13 @@ let movementCanvas = document.getElementById("movementVisualisation");
 let addColor = document.getElementById("addColor")
 let ctx = movementCanvas.getContext("2d")
 let pixelSize = 12;
-let movementInfo = []
 let chessPieceImageUrlW = document.getElementById("chess_piece_image_url_white")
 let chessPieceImageW = document.getElementById("chess_piece_image_white")
 let chessPieceImageUrlB = document.getElementById("chess_piece_image_url_black")
 let chessPieceImageB = document.getElementById("chess_piece_image_black")
-let pathColors = [];
+let currentLayerID
+
+let proportion =  parseInt(getComputedStyle(movementCanvas).width)/movementCanvas.width
 
 function allPromotionPieces() {
 	let rt = "";
@@ -50,27 +53,20 @@ ctx.fillStyle = "black"
 ctx.font = "1px"
 ctx.fillRect(Math.floor(movementCanvas.width / (2 * pixelSize)) * pixelSize, Math.floor(movementCanvas.height / (2 * pixelSize)) * pixelSize, pixelSize, pixelSize)
 movementCanvas.addEventListener("click", (e) => {
-	ctx.fillStyle = color
-	//if the square is empty
-	if (ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data.every((item) => {
-			return item == 0
-		})) {
-		let thePath = pathesInfo.filter((item) => {
-			return item.color == color
-		})[0]
-		ctx.fillRect(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, pixelSize, pixelSize)
+		let thePath = pathesInfo.find(function(e){
+			return e.id == currentLayerID
+		})
+		ctx.fillStyle = thePath.color
+		ctx.fillRect(Math.floor(e.offsetX / (proportion*pixelSize)) * pixelSize, Math.floor(e.offsetY / (proportion*pixelSize)) * pixelSize, pixelSize, pixelSize)
 		ctx.fillStyle = "black"
-		ctx.fillText(thePath.num, Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize + pixelSize)
-		ctx.fillStyle = color
-		movementInfo.push({
-			x: Math.floor(e.offsetX / pixelSize) - Math.floor(movementCanvas.width / (2 * pixelSize)),
-			y: Math.floor(e.offsetY / pixelSize) - Math.floor(movementCanvas.height / (2 * pixelSize)),
-			color: ctx.fillStyle,
-			number: thePath.num
+		ctx.fillText(thePath.num, Math.floor(e.offsetX / (proportion*pixelSize)) * pixelSize, Math.floor(e.offsetY / (proportion*pixelSize)) * pixelSize + pixelSize)
+		thePath.moves.push({
+			x: Math.floor(e.offsetX / (proportion * pixelSize)) - Math.floor(movementCanvas.width / (2 * pixelSize)),
+			y: Math.floor(e.offsetY / (proportion * pixelSize)) - Math.floor(movementCanvas.height / (2 * pixelSize)),
+			color:  thePath.color,
+			number: thePath.moves.length,
 		})
 		thePath.num++
-		// if the square is taken
-	}
 })
 promotionButton.addEventListener("click", (e) => {
 	let div = document.createElement("div");
@@ -82,41 +78,36 @@ promotionButton.addEventListener("click", (e) => {
 deletePromotionButton.addEventListener("click", (e) => {
 	document.getElementById("promotion").children[document.getElementById("promotion").children.length - 1].remove()
 })
-movementCanvas.addEventListener("dblclick", (e) => {
-	if (!(ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[0] == 0 && ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[1] == 0 && ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[2] == 0 && ctx.getImageData(Math.floor(e.offsetX / pixelSize) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[3] == 255)) {
+movementCanvas.addEventListener("contextmenu", (e) => {
+	e.preventDefault()
+	if (!(ctx.getImageData(Math.floor(e.offsetX / (proportion*pixelSize)) * pixelSize, Math.floor(e.offsetY / (proportion*pixelSize)) * pixelSize, 1, 1).data[0] == 0 && ctx.getImageData(Math.floor(e.offsetX / (proportion*pixelSize)) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[1] == 0 && ctx.getImageData(Math.floor(e.offsetX / (proportion*pixelSize)) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[2] == 0 && ctx.getImageData(Math.floor(e.offsetX / (proportion*pixelSize)) * pixelSize, Math.floor(e.offsetY / pixelSize) * pixelSize, 1, 1).data[3] == 255)) {
+		let thePath = pathesInfo.find(function(e){
+			return e.id == currentLayerID
+		})
 		//for sliding
-		let theSquareInArrayIndex = movementInfo.findIndex((item) => {
-			return item.x == Math.floor(e.offsetX / pixelSize) - Math.floor(movementCanvas.width / (2 * pixelSize)) && item.y == Math.floor(e.offsetY / pixelSize) - Math.floor(movementCanvas.height / (2 * pixelSize))
+		let theSquareInArrayIndex = thePath.moves.findIndex((item) => {
+			return item.x == Math.floor(e.offsetX / (proportion*pixelSize)) - Math.floor(movementCanvas.width / (2 * pixelSize)) && item.y == Math.floor(e.offsetY / (proportion*pixelSize)) - Math.floor(movementCanvas.height / (2 * pixelSize))
 		})
-		let thePath = pathesInfo.filter((item) => {
-			let rgb = item.color.replace("rgb(", "").replace(")", "").split(",")
-			for (let i = 0; i < rgb.length; i++) {
-				rgb[i] = parseInt(rgb[i])
-			}
-			//console.log(rgbToHex(rgb), movementInfo[theSquareInArrayIndex].color)
-			return rgbToHex(rgb) == movementInfo[theSquareInArrayIndex].color
-		})[0]
 		//console.log(thePath, pathesInfo)
-		thePath.num = movementInfo[theSquareInArrayIndex].number
-		let removeThose = movementInfo.filter((item) => {
-			return item.color == movementInfo[theSquareInArrayIndex].color && item.number >= movementInfo[theSquareInArrayIndex].number
+		thePath.num =thePath.moves[theSquareInArrayIndex].number
+		let removeThose = thePath.moves.filter((item) => {
+			return item.number >= thePath.moves[theSquareInArrayIndex].number
 		})
+		console.log(removeThose,thePath)
 		if (thePath.type == "slide") {
 			removeThose.forEach((item) => {
-				movementInfo.splice(movementInfo.findIndex((item2) => {
-					return item.color == item2.color && item.number == item2.number
-				}), 1)
 				ctx.clearRect(item.x * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.width / 2), item.y * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.height / 2), pixelSize, pixelSize)
 			})
 		} else {
-			ctx.clearRect(movementInfo[theSquareInArrayIndex].x * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.width / 2), movementInfo[theSquareInArrayIndex].y * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.height / 2), pixelSize, pixelSize)
-			movementInfo.splice(theSquareInArrayIndex, 1)
+			ctx.clearRect(thePath[theSquareInArrayIndex].x * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.width / 2), thePath[theSquareInArrayIndex].y * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.height / 2), pixelSize, pixelSize)
+			thePath.splice(theSquareInArrayIndex, 1)
 		}
 
 	}
 })
 
 function addPath() {
+	let visibleLayer = document.createElement("button");
 	let div = document.createElement("div");
 	let colorDiv = document.createElement("div");
 	let type = document.createElement("select");
@@ -130,20 +121,22 @@ function addPath() {
 	let direction = document.createElement("select");
 	let directionTrue = document.createElement("option");
 	let directionFalse = document.createElement("option");
-
-
+	div.classList.add("movement_path")
+	choose.value = layerId
+	visibleLayer.value = layerId
+	visibleLayer.innerHTML = "hide"
+	deleteButton.value = layerId
 	additionalEffects.classList.add("building_containers");
 	additionalEffects.classList.add("AF_BB");
-	additionalEffects.classList.add("condition_container");
+	additionalEffects.classList.add("condition_slot");
 	condition.classList.add("building_containers");
-	condition.classList.add("condition_container");
+	condition.classList.add("condition_slot");
 	slideCondition.classList.add("building_containers");
-	slideCondition.classList.add("condition_container");
+	slideCondition.classList.add("condition_slot");
 	slideCondition.classList.add("slide_condition");
 
 	additionalEffects.style.minWidth = "200px"
 	additionalEffects.style.backgroundColor = "lightbrown"
-	div.style.display = "flex"
 	typeSlide.value = "slide"
 	typeSlide.innerHTML = "slide"
 	typeJump.value = "jump"
@@ -159,7 +152,6 @@ function addPath() {
 	colorDiv.style.minWidth = "50px"
 	colorDiv.style.minHeight = "50px"
 	colorDiv.style.backgroundColor = addColor.value
-	pathColors.push(addColor.value)
 	choose.innerHTML = "choose"
 	deleteButton.innerHTML = "delete"
 
@@ -171,16 +163,17 @@ function addPath() {
 
 
 	div.append(colorDiv)
+	div.append(visibleLayer)
 	div.append(choose)
 	div.append(type)
 	div.append(direction)
+	div.append(deleteButton)
 	div.append(condition)
 	div.append(slideCondition)
 	div.append(additionalEffects)
-	div.append(deleteButton)
 	buildingContainers = document.getElementsByClassName("building_containers")
-	document.body.append(div)
-	let path = createPath(colorDiv.style.backgroundColor, type.value, elementsIntoCodeCondition(condition), elementsIntoCodeCondition(slideCondition), AFelementsIntoCode(additionalEffects), direction.value)
+	movementContainer.append(div)
+	let path = createPath(addColor.value,type.value, elementsIntoCodeCondition(condition), elementsIntoCodeCondition(slideCondition), AFelementsIntoCode(additionalEffects), direction.value)
 	type.addEventListener("change", (e) => {
 		if (getComputedStyle(slideCondition).display != "none") {
 			slideCondition.style.display = "none"
@@ -190,29 +183,41 @@ function addPath() {
 		path.type = type.value
 
 	})
+	visibleLayer.addEventListener("click",function(e){
+		if(visibleLayer.innerHTML == "hide"){
+			visibleLayer.innerHTML = "show"
+			path.shown = false
+			hideLayer(path)
+		}else{
+			visibleLayer.innerHTML = "hide"
+			path.shown = true
+		}
+		updateLayers()
+	})
 	direction.addEventListener("change", (e) => {
 		path.followDirection = direction.value
 	})
-	choose.addEventListener("click", (e) => {
-		color = colorDiv.style.backgroundColor
+	choose.addEventListener("click", function(e){
+		currentLayerID = parseInt(this.value)
+		showLayer(path)
+		path.shown = true
+		visibleLayer.innerHTML = "hide"
 	})
-	deleteButton.addEventListener("click", () => {
+	deleteButton.addEventListener("click", function(){
 		div.remove()
+		let thePath = pathesInfo.find((item) => {
+			return this.value == item.id
+		})
 		pathesInfo.splice(pathesInfo.findIndex((item) => {
-			return item.color == colorDiv.style.backgroundColor
-		}))
+			return this.value == item.id
+		}),1)
 		let rgb = colorDiv.style.backgroundColor.replace("rgb(", "").replace(")", "").split(",")
 		for (let i = 0; i < rgb.length; i++) {
 			rgb[i] = parseInt(rgb[i])
 		}
-		pathColors.splice(pathColors.indexOf(rgbToHex(rgb)))
-		let removeThose = movementInfo.filter((item) => {
-			return item.color == rgbToHex(rgb)
-		})
+		let removeThose = thePath.moves
+		
 		removeThose.forEach((item) => {
-			movementInfo.splice(movementInfo.findIndex((item2) => {
-				return item.color == item2.color && item.number == item2.number
-			}), 1)
 			ctx.clearRect(item.x * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.width / 2), item.y * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.height / 2), pixelSize, pixelSize)
 		})
 	})
@@ -263,20 +268,23 @@ function addPath() {
 	
 	buildingContainersUpdate();
 	
-	return div
+	return [div,path]
 }
 
 function createPath(color, type, condition, slideCondition, additionalEffect, direction) {
 	let path = {
-		color: color,
 		type: type,
 		condition: condition,
 		slideCondition: slideCondition,
 		additionalEffect: additionalEffect,
 		moves: [],
 		followDirection: direction,
-		num: 0
+		num: 0,
+		id:layerId,
+		color:color,
+		shown:true
 	}
+	layerId++
 	pathesInfo.push(path)
 	return path
 }
@@ -306,6 +314,7 @@ for (let i = 0; i < draggableBlockTemplates.length; i++) {
 buildingContainersUpdate()
 
 function buildingContainersUpdate() {
+	buildingContainers = document.getElementsByClassName("building_containers");
 	for (let i = 0; i < buildingContainers.length; i++) {
 		buildingContainers[i].addEventListener("dragover", function (ev) {
 			ev.preventDefault();
@@ -313,10 +322,9 @@ function buildingContainersUpdate() {
 
 		buildingContainers[i].addEventListener("drop", function (ev) {
 			ev.preventDefault();
-			//console.log(ev, ev.clientX - parseInt(getComputedStyle(ev.target).left), ev.clientY - parseInt(getComputedStyle(ev.target).top))
 			var data = ev.dataTransfer.getData("text");
-			//console.log(data)
 			let parent = document.getElementById(data).parentElement;
+			console.log("remove",parent)
 			//checking is the target element isnt template and if its empty
 			if (ev.target.parentElement.classList[0] != "block_template" && (ev.target.childElementCount == 0 || ev.target.classList.contains("AF_BB")) || ev.target.classList.contains("BB_storage")) {
 				//checking is element block temeplate to decide to clone it or not
@@ -328,13 +336,13 @@ function buildingContainersUpdate() {
 					//adding drag event
 					if (clonneBB.classList.contains("forAF")) {
 						if (ev.target.classList.contains("BB_storage")) {
-							clonneBB.style.position = "absolute"
+							//clonneBB.style.position = "absolute"
 						} else {
 							clonneBB.style.position = "static"
 						}
 					} else {
 						if (ev.target.classList.contains("BB_storage")) {
-							clonneBB.style.position = "absolute"
+							//clonneBB.style.position = "absolute"
 						} else {
 							clonneBB.style.position = "relative"
 							clonneBB.style.left = null
@@ -357,7 +365,8 @@ function buildingContainersUpdate() {
 						}
 					}
 					if (ev.target.classList.contains("building_containers") && clonePrevention) {
-						ev.target.appendChild(clonneBB);
+						ev.target.appendChild(clonneBB)
+						console.log("1",ev.target)
 						clonneBB.addEventListener('contextmenu', function (e) {
 							e.preventDefault();
 							context = clonneBB
@@ -367,20 +376,20 @@ function buildingContainersUpdate() {
 						}, false)
 						buildingContainers = document.getElementsByClassName("building_containers")
 
-						//updating containers (recesive func)
+						//updating containers (recursive func)
 						buildingContainersUpdate()
 					}
 				} else if (document.getElementById(data).classList[0] == "building_block") {
 					if (ev.target.classList.contains("building_containers")) {
 						if (document.getElementById(data).classList.contains("forAF")) {
 							if (ev.target.classList.contains("BB_storage")) {
-								document.getElementById(data).style.position = "absolute"
+								//document.getElementById(data).style.position = "absolute"
 							} else {
 								document.getElementById(data).style.position = "static"
 							}
 						} else {
 							if (ev.target.classList.contains("BB_storage")) {
-								document.getElementById(data).style.position = "absolute"
+								//document.getElementById(data).style.position = "absolute"
 							} else {
 								document.getElementById(data).style.position = "relative"
 								document.getElementById(data).style.left = null
@@ -388,6 +397,7 @@ function buildingContainersUpdate() {
 							}
 						}
 						ev.target.appendChild(document.getElementById(data));
+						console.log("2",ev.target)
 
 						if (ev.target.classList.contains("BB_storage")) {
 							document.getElementById(data).style.left = ev.clientX - parseInt(getComputedStyle(ev.target).left) + "px"
@@ -395,30 +405,18 @@ function buildingContainersUpdate() {
 						}
 					}
 				}
-				//				console.log("1 parent:", parent)
-				//sizing from children to parent for ex parent
-				do {
-					if (!parent.classList.contains("condition_container")) {
-						let width = 0;
-						let height = 0;
-						for (let i = 0; i < parent.children.length; i++) {
-							if (!isNaN(parseInt(getComputedStyle(parent.children[i]).width))) {
-								if (parseInt(getComputedStyle(parent.children[i]).width) < parseInt(parent.children[i].style.width)) {
-									width += parseInt(parent.children[i].style.width)
-								} else {
-									width += parseInt(getComputedStyle(parent.children[i]).width)
-								}
-							}
-
-						}
-						parent.style.width = (width) + "px"
-						//console.log("parent", width, parent)
-						parent = parent.parentElement
-					}
-				} while (!parent.classList.contains("condition_container"))
-				let start = ev.target
-				//sizing from child to parent for new parent
-				designTheDropElFromChildren(start)
+			}
+			if(this.children.length == 0){
+				this.classList.remove("has_child")
+				console.log("doesn't",this)
+			}else{
+				this.classList.add("has_child")
+				console.log("has_child",this)
+			}
+			if(parent.children.length == 0){
+				parent.classList.remove("has_child")
+			}else{
+				parent.classList.add("has_child")
 			}
 		})
 	}
@@ -427,100 +425,95 @@ function buildingContainersUpdate() {
 
 function elementsIntoCodeCondition(el) {
 	let answer = "";
+	let part1;
+	let selector;
+	let part2;
+	let input;
+	let selector2;
 	//console.log("element EICC",el, el.children)
 	if (el.children[0] != undefined) {
+		let elementsChildren = el.children[0].children
 		switch (el.children[0].classList[1]) {
-			case "and_or":
-				answer += "( " + elementsIntoCodeCondition(el.children[0].children[0]) + " "
-				answer += el.children[0].children[1].value + " "
-				answer += elementsIntoCodeCondition(el.children[0].children[2]) + " )"
-				return answer
-				break;
-			case "compare":
-				answer += "( " + elementsIntoCodeCondition(el.children[0].children[0]) + " "
-				answer += el.children[0].children[1].value + " "
-				answer += elementsIntoCodeCondition(el.children[0].children[2]) + " )"
-				return answer
-				break;
-			case "math_func":
-				if (isObjectString(elementsIntoCodeCondition(el.children[0].children[0])) && isObjectString(elementsIntoCodeCondition(el.children[0].children[2]))) {
-					answer += "{x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".x),"
-					answer += "y: parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".y ) " + el.children[0].children[1].value + " parseInt(" + elementsIntoCodeCondition(el.children[0].children[2]) + ".y) }"
+	case "and_or":
+		part1 = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",0)) +">"
+		selector = "sel:<" + elementsChildren.findClass("selectorClass",0).value +">"
+		part2 = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",1))+">"
+		answer = `and_or(${selector},${part1},${part2})`
+		return answer
+		break;
+	case "compare":
+		part1 = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",0)) +">"
+		selector ="sel:<" +  elementsChildren.findClass("selectorClass",0).value + ">"
+		part2 = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",1)) +">"
+		answer = `compare(${selector},${part1},${part2})`
+		return answer
+		break;
+	case "math_func":
+		selector ="sel:<" + elementsChildren.findClass("selectorClass",0).value +">"
+		part1 ="bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",0))+">"
+		part2 ="bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",1))+">"
+		answer = `math_func(${selector},${part1},${part2})`
+		break;
+	case "chessboard_block":
+		selector ="sel:<" + elementsChildren.findClass("selectorClass",0).value+">"
+		part1 ="bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",0))+">"
+		answer = `chessboard_block(${selector},${part1})`
+		return answer
+		break;
+	case "coordinates":
+		let x = "input:<" + elementsChildren.findClass("input",0).value+">"
+		let y = "input:<" + elementsChildren.findClass("input",1).value+">"
+		return `coordinates(${x},${y})`
+		break;
+	case "piece_info":
+		selector ="sel:<" + elementsChildren.findClass("selectorClass",0).value+">"
+		return `piece_info(${selector})`
+		break;
+	case "bool":
+		selector ="sel:<" + elementsChildren.findClass("selectorClass",0).value+">"
+		return `bool(${selector})`
+		break;
+	case "number":
+		input = "input:<" + elementsChildren.findClass("input",0).value+">"
+		return `number(${input})`
+		break;
+	case "write":
+		input = "input:<" + elementsChildren.findClass("input",0).value+">"
+		return `write(${input})`
+		break;
+	case "seen_by":
+		selector ="sel:<" + elementsChildren.findClass("selectorClass",0).value+">"
+		input ="input:<" + elementsChildren.findClass("input",0).value+">"
+		part1 = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",0))+">"
+		return `seen_by(${selector},${input},${part1})`
+		break;
+	case "chess_history":
+		selector = "sel:<" +elementsChildren.findClass("selectorClass",0).value+">"
+		input ="input:<" + elementsChildren.findClass("input",0).value +">"
+		selector2 = "sel:<" +elementsChildren.findClass("selectorClass",1).value+">"
+		return `chess_history(${selector},${input},${selector2})`
+		break;
+	case "x_y":
+		part1 = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",0))+">"
+		selector = "sel:<" +elementsChildren.findClass("selectorClass",0).value+">"
+		return `x_y(${part1},${selector})`
+		break;
+	case "position_after_moving":
+		return "position_after_moving()"
+		break;
+	case "moves":
+		return "moves()"
+		break;
+	case "color_direction":
+		return "color_direction()"
+		break;
+	default:
+		answer = "bool(sel:<true>)"
+		return answer
 
-				} else if (isObjectString(elementsIntoCodeCondition(el.children[0].children[0]))) {
-					answer += "{x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])
-					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[0]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[2])+"}"
-				} else if (isObjectString(elementsIntoCodeCondition(el.children[0].children[2]))) {
-					answer += "{x:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".x )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])
-					answer += ", y:parseInt( " + elementsIntoCodeCondition(el.children[0].children[2]) + ".y )" + el.children[0].children[1].value + elementsIntoCodeCondition(el.children[0].children[0])+"}"
-				} else {
-					answer += "( " + elementsIntoCodeCondition(el.children[0].children[0]) + " "
-					answer += el.children[0].children[1].value + " "
-					answer += elementsIntoCodeCondition(el.children[0].children[2]) + " )"
-				}
-				return answer
-				break;
-			case "chessboard_block":
-				answer += "chessBoardArray[findSquare( " + elementsIntoCodeCondition(el.children[0].children[1]) + " )]"
-				answer += el.children[0].children[3].value
-				return answer
-				break;
-			case "coordinates":
-				return "{x:" + el.children[0].children[1].value + ", y:" + el.children[0].children[3].value + "}"
-				break;
-			case "piece_info":
-				return "piece." + el.children[0].children[1].value
-				break;
-			case "true_false":
-				return el.children[0].children[0].value
-				break;
-			case "numbers":
-				return el.children[0].children[0].value
-				break;
-			case "write":
-				return "'" + el.children[0].children[0].value + "'"
-				break;
-			case "position_after_moving":
-				return "{x:parseInt(pos.x),y:parseInt(pos.y)}"
-				break;
-			case "moves":
-				return "chessMove"
-				break;
-			case "seen_by":
-				answer += "checkIsSquareSeen((item)=>{return "
-				answer += el.children[0].children[3].value
-				answer += "&& piece.pos != pos"
-				if (el.children[0].children[5].children[0].value != "") {
-					answer += " && item.type.name == " + el.children[0].children[5].children[0].value
-				}
-				answer += "}," + elementsIntoCodeCondition(el.children[0].children[1]) + ")"
-				return answer
-				break;
-
-			case "chess_history":
-				if (el.children[0].children[3].value == "from" || el.children[0].children[3].value == "to") {
-					answer += "{x:parseInt(chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value + ".x),"
-					answer += " y:parseInt(chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value + ".y)}"
-				} else {
-					answer += "chessHistory[" + el.children[0].children[1].value + el.children[0].children[2].value + "]." + el.children[0].children[3].value
-				}
-				return answer
-				break;
-			case "x_y":
-				answer += elementsIntoCodeCondition(el.children[0].children[0]);
-				answer += el.children[0].children[1].value;
-				return answer
-				break;
-			case "color_direction":
-				return "colorDirection(piece.color)"
-				break;
-			default:
-				answer = "true"
-				return answer
-
-		}
+}
 	} else {
-		answer = "false"
+		answer = "bool(sel:<false>)"
 		return answer
 	}
 }
@@ -530,41 +523,41 @@ function AFelementsIntoCode(el) {
 	let cond;
 	let action;
 	for (let i = 0; i < el.children.length; i++) {
+		let element = el.children[i].children
 		switch (el.children[i].classList[1]) {
 			case "if":
-				cond = elementsIntoCodeCondition(el.children[i].children[0].children[1]);
-				action = "";
+				cond ="bc:<" + elementsIntoCodeCondition(element.findClass("building_containers"))+">";
+				action ="af:<" + AFelementsIntoCode(element.findClass("AF_BB"))+">"
 				//console.log(el.children[i].children[1])
-				action += AFelementsIntoCode(el.children[i].children[1])
 				//console.log(action)
-				answer += "if(" + cond + "){" + action + "}"
+				answer +=`if(${cond},${action});`
 				break;
 			case "if_else":
-				cond = elementsIntoCodeCondition(el.children[i].children[0].children[1]);
-				action = "";
-				let action2 = "";
-				//console.log(el.children[i].children[1])
-				//for (let j = 0; i < el.children[i].children[1].length; j++) {
-				action += AFelementsIntoCode(el.children[i].children[1])
-				//}
-				//for (let j = 0; i < el.children[i].children[i].children[3].length; j++) {
-				action2 += AFelementsIntoCode(el.children[i].children[3])
-				//}
-				//console.log(action)
-				answer += "if(" + cond + "){" + action + "}else{"+ action2 +"}"
+				cond ="bc:<" + elementsIntoCodeCondition(element.findClass("building_containers"))+">";
+				action ="af:<" + AFelementsIntoCode(element.findClass("AF_BB"))+">"
+
+				let action2 ="af:<" + AFelementsIntoCode(element.findClass("AF_BB"),1)+">";
+
+				answer = `if_else(${cond},${action},${action2});`
 				break;
 			case "capture":
-				answer += `clearSquare(findSquare(${elementsIntoCodeCondition(el.children[i].children[1])}));`
+				let part = "bc:<" + elementsIntoCodeCondition(element.findClass("building_containers"))+">"
+				answer += `capture(${part});`
 				break;
 			case "move_to":
-				answer += `movePiece(chessBoard.children[findSquare(${elementsIntoCodeCondition(el.children[i].children[1])})].children[0],findSquare(${elementsIntoCodeCondition(el.children[i].children[3])}));`
+				let from ="bc:<" + elementsIntoCodeCondition(element.findClass("building_containers"))+">"
+				let to ="bc:<" +elementsIntoCodeCondition(element.findClass("building_containers",1))+">"
+				answer += `move_to(${from},${to});`
 				break;
 			case "create":
-				answer += `createChessPiece('${el.children[i].children[1].value}',${elementsIntoCodeCondition(el.children[i].children[4])},sameNotColor(${el.children[i].children[3].value}));`
+				let piece = "input:<" + element.findClass("input").value+">"
+				let cords = "bc:<" + elementsIntoCodeCondition(element.findClass("building_containers"))+">"
+				let color = "sel:<" + element.findClass("selectorClass").value+">"
+				answer += `create(${piece},${cords},${color});`
 				break;
 			default:
 				return ""
-		}
+}
 	}
 	return answer
 }
@@ -615,6 +608,7 @@ function rgbToHexStr(rgbColor) {
 
 function saveChessPiece() {
 	chessPieceName = document.getElementById("chess_piece_name").value
+	console.log(promotionCondition)
 	let chessPiecePrototype = {
 		name: chessPieceName,
 		image: {
@@ -622,19 +616,26 @@ function saveChessPiece() {
 			"black": chessPieceImageUrlB.value
 		},
 		royal: isRoyal.value,
-		promote: "ChessPiecePromotion((pos,piece)=>{return " + elementsIntoCodeCondition(promotionCondition) + "},[" + allPromotionPieces() + "])",
+		promote: elementsIntoCodeCondition(promotionCondition) + ";[" + allPromotionPieces() +"]",
 		movement: [],
-		pathColors: pathColors
 	};
-	movementInfoToPathesInfo();
 	pathesInfo.forEach((path) => {
 		//console.log(JSON.stringify(path.moves), path.moves)
-		chessPiecePrototype.movement.push("ChessPieceMovementPath(" + JSON.stringify(path.moves).replaceAll("\"", "") + ",\"" + path.type + "\",(pos,piece)=>{return " + path.condition + "},(pos,piece)=>{return " + path.slideCondition + "},(pos,piece)=>{" + path.additionalEffect + "}," + path.followDirection + ")")
+//		chessPiecePrototype.movement.push("{moves:'" + JSON.stringify(path.moves) + "',type:'" + path.type + "',condition:'" + path.condition +"',slideCondition:'"+path.slideCondition+"',additionalEffect:'" + path.additionalEffect + "',follow_direction:'" + path.followDirection +"'}")
+		let movement = {
+			moves:path.moves,
+			type:path.type,
+			condition:path.condition,
+			slideCondition:path.slideCondition,
+			applyAdditionalEffect:path.additionalEffect,
+			followDirection:path.followDirection
+		}
+		
+		chessPiecePrototype.movement.push(JSON.stringify(movement))
 	})
-	let test = JSON.stringify(chessPiecePrototype)
 
-	let content = "let _ChessPiecePrototype_" + chessPieceName + " = " + test;
-	let chessPieceFile = new File([test], "chessPiece_" + chessPieceName + ".json", {
+	let content = JSON.stringify(chessPiecePrototype);
+	let chessPieceFile = new File([content], "chessPiece_" + chessPieceName + ".json", {
 		type: "application/json"
 	})
 
@@ -665,12 +666,12 @@ dublicateButton.addEventListener("click", (e) => {
 		})
 		console.log(clone.style.left)
 		if (clone.style.top != "") {
-			clone.style.top = parseInt(clone.style.top) + 5 + "px"
+			clone.style.top = parseInt(clone.style.top) + 15 + "px"
 		} else {
 			clone.style.top = 5 + "px"
 		}
 		if (clone.style.left != "") {
-			clone.style.left = parseInt(clone.style.left) + 5 + "px"
+			clone.style.left = parseInt(clone.style.left) + 15 + "px"
 		} else {
 			clone.style.left = 5 + "px"
 		}
@@ -739,4 +740,43 @@ function designTheDropElFromChildren(start) {
 		//console.log(width, start)
 		start = start.parentElement
 	} while (start != null && !start.classList.contains("condition_container"))
+}
+function hideLayer(layer){
+	layer.shown = false
+	layer.moves.forEach((item)=>{
+		ctx.clearRect(item.x * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.width / 2), item.y * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.height / 2), pixelSize, pixelSize)
+	})
+}
+function showLayer(layer){
+	layer.shown = true
+	layer.moves.forEach((item)=>{
+		ctx.fillStyle = item.color
+		
+		ctx.fillRect(item.x * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.width / 2), item.y * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.height / 2), pixelSize, pixelSize)
+		
+		ctx.fillStyle = "black"
+		ctx.fillText(item.number, item.x * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.width / 2), (item.y+1) * pixelSize - pixelSize / 2 + Math.floor(movementCanvas.height / 2))
+	})
+}
+function updateLayers(){
+	pathesInfo.forEach((e)=>{
+		if(e.shown){
+			showLayer(e)
+		}
+	})
+}
+	
+	
+HTMLCollection.prototype.findClass = function(htmlClass,id = 0){
+	let checkId = 0
+	for (let i = 0 ; i < this.length; i++){
+		if(this[i].classList.contains(htmlClass)){
+			if(checkId == id){
+				return this[i]
+				break	
+			}
+			checkId++
+		}
+	}
+	return undefined
 }

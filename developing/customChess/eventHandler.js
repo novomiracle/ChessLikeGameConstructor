@@ -64,6 +64,14 @@ function handleDrop(e) {
 				//					x: parseInt(target.getAttribute("x")),
 				//					y: parseInt(target.getAttribute("y"))
 				//				}, draggedPiece.chessPiece, chessBoardArray))
+				console.log(item.condition)
+				console.log(item.condition({
+					x: parseInt(target.getAttribute("x")),
+					y: parseInt(target.getAttribute("y"))
+				}, draggedPiece.chessPiece), {
+					x: parseInt(target.getAttribute("x")),
+					y: parseInt(target.getAttribute("y"))
+				}, draggedPiece.chessPiece)
 				return item.moves.some((move, moveIndex) => {
 					if (item.type == "jump") {
 						//console.log("checking moves jump", checkValidityOfMove(draggedPiece, move, target, direction))
@@ -71,7 +79,7 @@ function handleDrop(e) {
 					} else if (item.type == "slide") {
 						//console.log("do we need to check the slide condition",moveIndex != 0)
 						//console.log(moveIndex)
-						if (moveIndex != 0) {	
+						if (moveIndex != 0) {
 							let movesUpToTheMove = item.moves.slice(0, moveIndex)
 							//console.log(movesUpToTheMove,item,moveIndex)
 							return movesUpToTheMove.every((move2) => {
@@ -80,8 +88,8 @@ function handleDrop(e) {
 									y: draggedPiece.chessPiece.pos.y + move2.y * direction
 								}
 								//console.log("slide Condition", item.slideCondition(chosenSquare, draggedPiece.chessPiece, chessBoardArray))
-								if(item.slideCondition(chosenSquare, draggedPiece.chessPiece)){
-									return  checkValidityOfMove(draggedPiece, move, target, direction)
+								if (item.slideCondition(chosenSquare, draggedPiece.chessPiece)) {
+									return checkValidityOfMove(draggedPiece, move, target, direction)
 								}
 							})
 						} else {
@@ -101,7 +109,6 @@ function handleDrop(e) {
 				chosenPiece = draggedPiece;
 			}
 			//moving/adding additional effect/ promoting/removing player/checking for win
-			//console.log("moving")
 			draggedPiece.chessPiece.type.movement[path].applyAdditionalEffect({
 				x: target.getAttribute("x"),
 				y: target.getAttribute("y")
