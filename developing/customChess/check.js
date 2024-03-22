@@ -1,1 +1,0 @@
-clearSquare(findSquare({x:{x:parseInt(pos.x),y:parseInt(pos.y)}.x,y:{x:parseInt(pos.x),y:parseInt(pos.y)}.y}))
