@@ -2,6 +2,8 @@ let piecesPrototypes = [];
 let piecesOnBoard = []
 let idCount = 1;
 let deleteDiv = document.getElementById("delete_place");
+let inputWidth = document.getElementById("width");
+let inputHeight = document.getElementById("height");
 deleteDiv.addEventListener("drop", (ev) => {
 	ev.preventDefault()
 	if (document.getElementById(ev.dataTransfer.getData("text")).classList.contains("prototype_div")) {
@@ -10,7 +12,7 @@ deleteDiv.addEventListener("drop", (ev) => {
 			return el.name == ev.dataTransfer.getData("text").name
 		}), 1)
 		document.getElementById(ev.dataTransfer.getData("text")).remove()
-	}else{
+	} else {
 		document.getElementById(ev.dataTransfer.getData("text")).remove()
 	}
 })
@@ -20,6 +22,7 @@ deleteDiv.addEventListener("dragover", (ev) => {
 //technical HTML
 // Get the chessboard element 
 let chessWidth = 8;
+let chessHeight = 8;
 
 let chessBoard = document.getElementById("chessboard");
 
@@ -76,8 +79,63 @@ for (let i = 0; i < 4; i++) {
 	}
 }
 
+function createChessBoard() {
+	squareId = 0
+	updateBoardArray()
+	chessBoard.innerHTML = ""
+	chessBoard.style.width = 80 * chessWidth + "px";
+	chessBoard.style.height = 80 * chessHeight + "px";
+	chessBoard.style.gridTemplateColumns = `repeat(${chessWidth}, 1fr)`
+	chessBoard.style.gridTemplateRows = `repeat(${chessHeight}, 1fr)`
+	let color = lightSquareColor;
+	for (let i = 0; i < chessHeight; i++) {
+		if (chessWidth % 2 == 0) {
+			if (color == lightSquareColor) {
+				color = darkSquareColor;
+			} else {
+				color = lightSquareColor;
+			}
+		}
+		for (let j = 0; j < chessWidth; j++) {
+			createChessSquare(color);
+			if (color == lightSquareColor) {
+				color = darkSquareColor;
+			} else {
+				color = lightSquareColor;
+			}
+		}
+	}
+	idCount = 1
+	piecesOnBoard.forEach((e) => {
+		if (e.x < chessWidth && e.y < chessHeight) {
+			let htmlPiece = document.createElement("div");
+			htmlPiece.setAttribute("name", e.name)
+			htmlPiece.id = e.name + idCount
+			htmlPiece.classList.add("piece_div")
+			idCount++
+			let image = piecesPrototypes.find((el) => {
+				return el.name == e.name
+			}).image
+			htmlPiece.style.backgroundImage = `url(${image[e.color]})`
+			htmlPiece.setAttribute("color", e.color)
+			htmlPiece.draggable = true
+			htmlPiece.addEventListener("dragstart", (ev) => {
+				ev.dataTransfer.setData("text", ev.target.id);
+			})
+			console.log(chessBoard.children[e.x + e.y * chessWidth], htmlPiece)
+			chessBoard.children[e.x + e.y * chessWidth].append(htmlPiece)
+		}
+	})
+}
+
+function changeBoardDimensions() {
+	chessWidth = parseInt(inputWidth.value)
+	chessHeight = parseInt(inputHeight.value)
+	createChessBoard()
+}
+
 function updateBoardArray() {
-	piecesOnBoard=[]
+	piecesOnBoard = []
 	chessBoard.childNodes.forEach((square, index) => {
 		if (index != 0) {
 			if (square.children.length != 0) {

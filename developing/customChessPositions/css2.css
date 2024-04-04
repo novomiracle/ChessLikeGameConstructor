@@ -3,7 +3,6 @@
 	border: solid black 1px;
 	width: 640px;
 	height: 640px;
-	min-width: 640px;
 	grid-template-columns: repeat(8, 1fr);
 	grid-template-rows: repeat(8, 1fr);
 

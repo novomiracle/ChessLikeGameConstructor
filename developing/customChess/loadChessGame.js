@@ -8,6 +8,9 @@ loadGameFile.addEventListener("change", (ev) => {
 			theGame = JSON.parse(fileContent)
 			// You can now process the file content as needed
 			console.log(theGame)
+			chessHeight = theGame.size.height
+			chessWidth = theGame.size.width
+			createChessBoard()
 			theGame.piecePrototypes.forEach((pr) => {
 				for (let i = 0; i < pr.movement.length; i++) {
 					pr.movement[i] = JSON.parse(pr.movement[i])

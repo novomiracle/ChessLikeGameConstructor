@@ -29,9 +29,19 @@ let chessPieceImageW = document.getElementById("chess_piece_image_white")
 let chessPieceImageUrlB = document.getElementById("chess_piece_image_url_black")
 let chessPieceImageB = document.getElementById("chess_piece_image_black")
 let currentLayerID
-
-let proportion =  parseInt(getComputedStyle(movementCanvas).width)/movementCanvas.width
-
+let canvasSize = document.getElementById("canvas_size")
+let proportion = parseInt(getComputedStyle(movementCanvas).width)/movementCanvas.width
+function updateCanvasSize(){
+	movementCanvas.width = (canvasSize.value*2+1) * pixelSize;
+	movementCanvas.height = (canvasSize.value*2+1) * pixelSize;
+	proportion = parseInt(getComputedStyle(movementCanvas).width)/movementCanvas.width
+	updateLayers()
+	ctx.fillStyle = "black"
+	ctx.fillRect(Math.floor(movementCanvas.width / (2 * pixelSize)) * pixelSize, Math.floor(movementCanvas.height / (2 * pixelSize)) * pixelSize, pixelSize, pixelSize)
+}
+canvasSize.addEventListener("change",()=>{
+	updateCanvasSize()
+})
 function allPromotionPieces() {
 	let rt = "";
 	for (let i = 0; i < promotionPieces.children.length; i++) {
@@ -469,8 +479,8 @@ function elementsIntoCodeCondition(el) {
 		return answer
 		break;
 	case "coordinates":
-		let x = "bc:<" + elementsChildren.findClass("building_containers",0).value+">"
-		let y = "bc:<" + elementsChildren.findClass("building_containers",1).value+">"
+		let x = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",0))+">"
+		let y = "bc:<" + elementsIntoCodeCondition(elementsChildren.findClass("building_containers",1))+">"
 		return `coordinates(${x},${y})`
 		break;
 	case "piece_info":

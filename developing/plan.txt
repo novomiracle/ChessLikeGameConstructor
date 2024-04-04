@@ -29,11 +29,6 @@
 -------- TO DO --------
 
 ------- additional ------
-- redesign
-	~ bug with changing sizes
-- drop elements in place (do not shift them to top-left cursor position)
-	
 - shapes(not everything everywhere)
 	~ fix bug with putting the elements into text
-	
 - functions

@@ -25,13 +25,30 @@ function createChessSquare(color) {
 }
 
 // Create the chessboard pattern
-for (let i = 0; i < 4; i++) {
-	for (let j = 0; j < 4; j++) {
-		createChessSquare(lightSquareColor);
-		createChessSquare(darkSquareColor);
-	}
-	for (let j = 0; j < 4; j++) {
-		createChessSquare(darkSquareColor);
-		createChessSquare(lightSquareColor);
+function createChessBoard() {
+	squareId = 0
+	chessBoard.innerHTML = ""
+	chessBoard.style.width = 80 * chessWidth + "px";
+	chessBoard.style.height = 80 * chessHeight + "px";
+	chessBoard.style.gridTemplateColumns = `repeat(${chessWidth}, 1fr)`
+	chessBoard.style.gridTemplateRows = `repeat(${chessHeight}, 1fr)`
+	let color = lightSquareColor;
+	for (let i = 0; i < chessHeight; i++) {
+		if (chessWidth % 2 == 0) {
+			if (color == lightSquareColor) {
+				color = darkSquareColor;
+			} else {
+				color = lightSquareColor;
+			}
+		}
+		for (let j = 0; j < chessWidth; j++) {
+			createChessSquare(color);
+			if (color == lightSquareColor) {
+				color = darkSquareColor;
+			} else {
+				color = lightSquareColor;
+			}
+		}
 	}
 }
+createChessBoard()

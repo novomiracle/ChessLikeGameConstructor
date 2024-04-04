@@ -56,7 +56,8 @@ saveButton.addEventListener("click",(ev)=>{
 	let content = {
 		piecePrototypes:[],
 		piecesOnBoard:[],
-		amountOfRoyalties:parseInt(royalties.value)
+		amountOfRoyalties:parseInt(royalties.value),
+		size:{width:chessWidth,height:chessHeight}
 	};
 	piecesPrototypes.forEach((el)=>{
 		content.piecePrototypes.push(el)

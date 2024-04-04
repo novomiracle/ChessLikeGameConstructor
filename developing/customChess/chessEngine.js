@@ -21,7 +21,6 @@ function updateChessBoardArray() {
 	chessBoardArray = [];
 	chessBoard.childNodes.forEach((square, index) => {
 		if (index != 0) {
-			console.log(square)
 			if (square.children.length == 0) {
 				chessBoardArray.push(0);
 			} else {
