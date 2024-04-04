@@ -1,0 +1,34 @@
+-------- DONE --------
+- painting into array 
+- color 
+- numeration 
+- deleting +all that are after too 
+- type 
+- block mechanizm 
+
+- Condition blocks 
+
+- condition 
+- slide condition 
+
+- delete BB
+
+- royalty
+- direction
+
+- promotion
+
+- AF blocks
+- additional effect
+
+- place for BB
+- image
+
+- download
+
+-------- TO DO --------
+
+------- additional ------
+- shapes(not everything everywhere)
+	~ fix bug with putting the elements into text
+- functions
